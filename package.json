@@ -1,10 +1,19 @@
 {
-  "name": "@whiskeysockets/libsignal-node",
-  "version": "2.0.1",
+  "name": "@antidonasi/libsignal-node",
+  "version": "1.0.0",
   "description": "Open Whisper Systems' libsignal for Node.js",
   "repository": "WhiskeySockets/libsignal-node",
   "main": "index.js",
   "types": "index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "version:patch": "npm version patch -m \"chore: bump version to %s\"",
+    "version:minor": "npm version minor -m \"chore: bump version to %s\"",
+    "version:major": "npm version major -m \"chore: bump version to %s\"",
+    "prepublishOnly": "git diff --cached --exit-code && git diff --exit-code"
+  },
   "keywords": [
     "signal",
     "whispersystems",
