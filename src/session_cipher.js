@@ -140,11 +140,15 @@ class SessionCipher {
         }   
         const errs = [];
         const record = await this.getRecord();
+        let closedSessions = false;
         for (const session of sessions) {
             let plaintext; 
             try {
                 plaintext = await this.doDecryptWhisperMessage(data, session);
                 session.indexInfo.used = Date.now();
+                if (closedSessions && record) {
+                    await this.storeRecord(record);
+                }
                 return {
                     session,
                     plaintext
@@ -154,6 +158,7 @@ class SessionCipher {
                     if (record && !record.isClosed(session)) {
                         try {
                             record.closeSession(session);
+                            closedSessions = true;
                         } catch(closeErr) {
                         }
                     }
@@ -161,9 +166,8 @@ class SessionCipher {
                 errs.push(e);
             }
         }
-        console.error("Failed to decrypt message with any known session...");
-        for (const e of errs) {
-            console.error("Session error:" + e, e.stack);
+        if (closedSessions && record) {
+            await this.storeRecord(record);
         }
         throw new errors.SessionError("No matching sessions found for message");
     }
