@@ -135,12 +135,11 @@ class SessionCipher {
     }
 
     async decryptWithSessions(data, sessions) {
-        // Iterate through the sessions, attempting to decrypt using each one.
-        // Stop and return the result if we get a valid result.
         if (!sessions.length) {
             throw new errors.SessionError("No sessions available");
         }   
         const errs = [];
+        const record = await this.getRecord();
         for (const session of sessions) {
             let plaintext; 
             try {
@@ -151,6 +150,14 @@ class SessionCipher {
                     plaintext
                 };
             } catch(e) {
+                if (e.message && e.message.includes("Bad MAC")) {
+                    if (record && !record.isClosed(session)) {
+                        try {
+                            record.closeSession(session);
+                        } catch(closeErr) {
+                        }
+                    }
+                }
                 errs.push(e);
             }
         }

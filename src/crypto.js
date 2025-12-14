@@ -83,7 +83,11 @@ function verifyMAC(data, key, mac, length) {
     if (mac.length !== length || calculatedMac.length !== length) {
         throw new Error("Bad MAC length");
     }
-    if (!mac.equals(calculatedMac)) {
+    let mismatch = 0;
+    for (let i = 0; i < length; i++) {
+        mismatch |= mac[i] ^ calculatedMac[i];
+    }
+    if (mismatch !== 0) {
         throw new Error("Bad MAC");
     }
 }
